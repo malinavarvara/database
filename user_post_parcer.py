@@ -6,21 +6,17 @@ from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-class Post:
-    def __init__(self, user_name, age, txt):
-        self.age = age
-        self.user_name = user_name
-        self.txt=txt
-
-    def get_data(self):
-        print(self.user_name+'\n'+self.txt+'\n'+self.age+'\n')
-
 def is_element_exist_by_id(driver,id):
     try:
         WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, id)))
     except TimeoutException:
         return False
 
+
+# Переписать как user_post_parser(url,func)
+# Типо
+#def func(element):
+#    print(element.text)
 def user_post_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
@@ -39,14 +35,9 @@ def user_post_parser(url):
             
             # Обработка  
             # !!! Здесь нужно добавить обработку
+
             element_text = element.text
-            words = element_text.split('\n')
-            text_post=''
-            for i in range(len(words)):
-                if i>1 and i<(len(words)-1):
-                    text_post=text_post+words[i]+'\n'
-            post1 = Post(words[0],words[len(words)-1],text_post)
-            post1.get_data()
+            print(element_text)
 
             # Перейдите к следующему id
             current_id = 'zen-row-' + str(int(current_id.split('-')[2]) + 1)
