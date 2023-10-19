@@ -37,7 +37,6 @@ def user_parser(url):
         n=0
         if 'K' in n_followers: n= float(n_followers[:-1])*1000
         if 'M' in n_followers: n= float(n_followers[:-1]) * 1000000
-        print(n)
         description=''
         for i in range(len(words)-2):
             if i>2: description=description+words[i]+'\n'
