@@ -49,3 +49,11 @@ def insert_user(username, user_url, user_image, description, n_followers):
     user (username, user_url, user_image, description, n_followers) 
     VALUES (?,?,?,?,?);""", (username, user_url, user_image, description, n_followers))
     db.commit()
+
+def delete_repeat():
+    cursor.execute("""DELETE FROM user 
+    where user_id NOT IN (
+    SELECT MIN(user_id) 
+    FROM user 
+    GROUP BY user_url)""")
+    db.commit()
