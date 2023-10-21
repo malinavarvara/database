@@ -6,6 +6,7 @@ from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from insert_users import user_parser
+from sql_table import delete_repeat
 
 
 def is_element_exist_by_id(driver, id):
@@ -20,6 +21,19 @@ def is_element_exist_by(driver,by, id):
     except TimeoutException:
         return False
 
+def links_to_changes(user_text):
+    text = user_text.get_attribute('innerHTML')
+    url_pattern = r'https://[\S]+'
+    urls = re.findall(url_pattern, text)
+
+    url = urls[0]
+    index=0
+    for i in range(len(url)):
+        if url[i]=='?': index=i
+    if index!=0: result_url=url[:index]
+    return result_url
+
+
 def user_post_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
@@ -32,7 +46,7 @@ def user_post_parser(url):
     current_id = 0
     current_id_txt='zen-row-'+str(current_id)
 
-    while current_id!=5:
+    while current_id!=2:
         try:
             # Поиск элемента с текущим id
             print(current_id)
@@ -42,12 +56,7 @@ def user_post_parser(url):
                 while is_element_exist_by(driver, By.CLASS_NAME, "zen-ui-channel-info__title-and-veryfied-mark-wrapper") == False:
                     print(1)
                 user_text = element.find_element(By.CLASS_NAME, "zen-ui-channel-info__title-and-veryfied-mark-wrapper")
-                # достаю ссылку
-                text = user_text.get_attribute('innerHTML')
-                url_pattern = r'https://[\S]+'
-                urls = re.findall(url_pattern, text)
-                url=urls[0]
-                user_parser(url[:-1])
+                user_parser(links_to_changes(user_text))
 
             # Перейдите к следующему id
             current_id = current_id+1
@@ -72,3 +81,4 @@ def user_post_parser(url):
 if __name__ == '__main__':
     test_url = 'https://dzen.ru/articles'
     user_post_parser(test_url)
+    delete_repeat()

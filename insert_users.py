@@ -36,7 +36,8 @@ def user_parser(url):
         n_followers=n_followers.replace(',', '.')
         n=0
         if 'K' in n_followers: n= float(n_followers[:-1])*1000
-        if 'M' in n_followers: n= float(n_followers[:-1]) * 1000000
+        elif 'M' in n_followers: n= float(n_followers[:-1]) * 1000000
+        else: n=n_followers
         description=''
         for i in range(len(words)-2):
             if i>2: description=description+words[i]+'\n'
@@ -51,8 +52,6 @@ def user_parser(url):
         url_pattern = r'https://[\S]+'
         urls = re.findall(url_pattern, text)
         image=urls[0]
-
-
         insert_user(user_name, url, image[:-9], description, n)
         return [user_name,url,image[:-9],description,n]
 
@@ -63,5 +62,5 @@ def user_parser(url):
 
 
 if __name__ == '__main__':
-    test_url = 'https://dzen.ru/tastyminute'
+    test_url = 'https://dzen.ru/cyberderevnya'
     user_parser(test_url)
