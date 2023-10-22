@@ -19,6 +19,8 @@ def is_element_exist_by(driver,by, id):
         WebDriverWait(driver, 5).until(EC.presence_of_element_located((by, id)))
     except TimeoutException:
         return False
+
+
 def user_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
@@ -62,5 +64,5 @@ def user_parser(url):
 
 
 if __name__ == '__main__':
-    test_url = 'https://dzen.ru/cyberderevnya'
+    test_url = 'https://dzen.ru/tastyminute'
     user_parser(test_url)

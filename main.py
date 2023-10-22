@@ -6,6 +6,7 @@ from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from insert_users import user_parser
+from user_post_parcer import user_post_parser
 from sql_table import delete_repeat
 
 
@@ -46,7 +47,7 @@ def user_post_parser(url):
     current_id = 0
     current_id_txt='zen-row-'+str(current_id)
 
-    while current_id!=2:
+    while current_id!=5:
         try:
             # Поиск элемента с текущим id
             print(current_id)
@@ -55,8 +56,9 @@ def user_post_parser(url):
             if 'card-wrapper _is-desktop _theme_white _with-border' in element_text:
                 while is_element_exist_by(driver, By.CLASS_NAME, "zen-ui-channel-info__title-and-veryfied-mark-wrapper") == False:
                     print(1)
-                user_text = element.find_element(By.CLASS_NAME, "zen-ui-channel-info__title-and-veryfied-mark-wrapper")
-                user_parser(links_to_changes(user_text))
+                user_text = links_to_changes(element.find_element(By.CLASS_NAME, "zen-ui-channel-info__title-and-veryfied-mark-wrapper"))
+                user_parser(user_text)
+                user_post_parser(user_text)
 
             # Перейдите к следующему id
             current_id = current_id+1
