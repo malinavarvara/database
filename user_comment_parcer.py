@@ -13,11 +13,27 @@ def is_element_exist_by_id(driver, id):
     except TimeoutException:
         return False
 
+def is_element_exist_by(driver,by, id):
+    try:
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((by, id)))
+    except TimeoutException:
+        return False
 
-# Переписать как user_post_parser(url,func)
-# Типо
-# def func(element):
-#    print(element.text)
+def parsing(prev_comment, driver):
+    post = driver.find_element(By.CLASS_NAME, "card-image-compact-view__content")
+    post_text = post.text
+
+    if post_text != prev_comment:
+        href = post.find_element(By.CLASS_NAME, "zen-ui-card-title-clamp")
+        description = post.find_element(By.CLASS_NAME, "card-layer-snippet-view").text.strip()
+        hrefUrl = href.get_attribute("href")
+        href_title = href.text.strip()
+
+        info_description = (description[:100] + '...') if len(description) > 100 else description
+        return f"{href_title}\n\n{info_description}\n\n{hrefUrl}", post_text
+    else:
+        return None, post_text
+
 def user_post_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
@@ -26,30 +42,15 @@ def user_post_parser(url):
 
     # Открываем веб-сайт
     driver.get(url)
-    # Здесь можно заменить на int и просто приписывать "zen-row-"
-    current_id = 'zen-row-0'
-
     while True:
         try:
-            # Поиск элемента с текущим id
-            element = driver.find_element(By.ID, current_id)
-            text = element.get_attribute('innerHTML')
-            url_pattern = r'https://[\S]+'
-            urls = re.findall(url_pattern, text)
-            print(urls, current_id)
-            # Обработка
-            # !!! Здесь нужно добавить обработку
-
-            element_text = element.text
-            print(element_text)
-
-            # Перейдите к следующему id
-            current_id = 'zen-row-' + str(int(current_id.split('-')[2]) + 1)
-
             scroll_count = 0
-            while is_element_exist_by_id(driver, current_id) == False and scroll_count < 3:
+            prev_comment = None
+            while is_element_exist_by(driver, current_id) == False and scroll_count < 3:
                 scroll_count += 1
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            post_return = parsing(prev_comment, driver)
+            prev_comment = post_return[1]
 
             if is_element_exist_by_id(driver, current_id) == False:
                 print("Конец страницы")
