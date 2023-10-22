@@ -33,7 +33,7 @@ def number_to_changesz(name):
     return likes
 
 
-def user_post_parser(url):
+def user_post_parser_zher(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -94,4 +94,4 @@ def user_post_parser(url):
     
 if __name__ == '__main__':
     test_url = 'https://dzen.ru/tastyminute'
-    user_post_parser(test_url)
+    user_post_parser_zher(test_url)

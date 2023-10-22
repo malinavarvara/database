@@ -6,7 +6,7 @@ from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from insert_users import user_parser
-from user_post_parcer import user_post_parser
+from user_post_parcer import user_post_parser_zher
 from sql_table import delete_repeat
 
 
@@ -58,7 +58,7 @@ def user_post_parser(url):
                     print(1)
                 user_text = links_to_changes(element.find_element(By.CLASS_NAME, "zen-ui-channel-info__title-and-veryfied-mark-wrapper"))
                 user_parser(user_text)
-                user_post_parser(user_text)
+                user_post_parser_zher(user_text)
 
             # Перейдите к следующему id
             current_id = current_id+1
