@@ -20,9 +20,9 @@ def number_to_changesz(name):
     if name[len(name) - 1].isdigit() or name[len(name) - 2].isdigit():
         for i in reversed(range(0, len(name))):
             if name[i].isdigit() and not (name[i - 1].isdigit()) and not (name[i - 2].isdigit()):
-                index = i - 1
+                index = i 
                 break
-        name = name[index + 1:]
+        name = name[index:]
         name = name.replace(',', '.')
         if 'K' in name:
             likes = float(name[:-1]) * 1000
@@ -93,5 +93,5 @@ def user_post_parser_zher(url):
     driver.quit()
     
 if __name__ == '__main__':
-    test_url = 'https://dzen.ru/tastyminute'
+    test_url = 'https://dzen.ru/id/652a7df17a8a8e15f847988f'
     user_post_parser_zher(test_url)

@@ -32,14 +32,12 @@ with sqlite3.connect("database.db") as db:
         FOREIGN KEY (user_id) REFERENCES user (user_id)
     );
     CREATE TABLE IF NOT EXISTS  comments (
-        id integer PRIMARY KEY,
+        id integer PRIMARY KEY AUTOINCREMENT,
         post_id integer,
-        user_id integer,
         user_create_id integer,
-        mother_comment_id integer,
         content text,
         n_likes INTEGER not null default 0,
-        FOREIGN KEY (user_id)  REFERENCES user (user_id)
+        FOREIGN KEY (post_id)  REFERENCES posts (id)
     );
     CREATE TABLE IF NOT EXISTS post_type (
         type_id integer PRIMARY KEY AUTOINCREMENT,
@@ -63,6 +61,14 @@ def insert_post(user_url, n_likes, n_comments, url_post):
     VALUES (
     (SELECT user.user_id FROM user WHERE user.user_url = ?)
     ,?,?,?);""", (user_url, n_likes, n_comments, url_post))
+    db.commit()
+
+def insert_comments(post_id, user_create_id, content, n_likes):
+    cursor.execute("""INSERT INTO 
+    posts (post_id, user_create_id, content, n_likes) 
+    VALUES (
+    (SELECT user.user_id FROM user WHERE user.user_url = ?)
+    ,?,?);""", (post_id, user_create_id, content, n_likes))
     db.commit()
 
 def delete_repeat():

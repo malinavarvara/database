@@ -6,6 +6,18 @@ from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from ordered_set import OrderedSet
+from bs4 import BeautifulSoup
+
+def highlight(driver, element):
+    """Highlights (blinks) a Selenium Webdriver element"""
+    def apply_style(s):
+        driver.execute_script("arguments[0].setAttribute('style', arguments[1]);",
+                              element, s)
+    original_style = element.get_attribute('style')
+    apply_style("background: yellow; border: 2px solid red;")
+    time.sleep(.3)
+    apply_style(original_style)
 
 def is_element_exist_by_id(driver, id):
     try:
@@ -19,22 +31,7 @@ def is_element_exist_by(driver,by, id):
     except TimeoutException:
         return False
 
-def parsing(prev_comment, driver):
-    post = driver.find_element(By.CLASS_NAME, "card-image-compact-view__content")
-    post_text = post.text
-
-    if post_text != prev_comment:
-        href = post.find_element(By.CLASS_NAME, "zen-ui-card-title-clamp")
-        description = post.find_element(By.CLASS_NAME, "card-layer-snippet-view").text.strip()
-        hrefUrl = href.get_attribute("href")
-        href_title = href.text.strip()
-
-        info_description = (description[:100] + '...') if len(description) > 100 else description
-        return f"{href_title}\n\n{info_description}\n\n{hrefUrl}", post_text
-    else:
-        return None, post_text
-
-def user_post_parser(url):
+def post_comment_parser_test(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -42,27 +39,49 @@ def user_post_parser(url):
 
     # Открываем веб-сайт
     driver.get(url)
+    time.sleep(5)
+    
+    elements_classes = driver.find_elements(By.CSS_SELECTOR, "[class]")
+    
+    comm_pattern = r"comment__commentContent-.*"
+    elements_comms = OrderedSet([element for element in elements_classes if re.search(comm_pattern, element.get_attribute("class"))])
+    
+    Bad_counter = 0
     while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            
+        new_elements_classes = driver.find_elements(By.CSS_SELECTOR, "[class]")
         try:
-            scroll_count = 0
-            prev_comment = None
-            while is_element_exist_by(driver, current_id) == False and scroll_count < 3:
-                scroll_count += 1
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            post_return = parsing(prev_comment, driver)
-            prev_comment = post_return[1]
-
-            if is_element_exist_by_id(driver, current_id) == False:
-                print("Конец страницы")
-                break
-        except Exception as e:
-            # Если элемент не был найден, завершите цикл
-            print("Элемент не найден. Завершение.")
-            print(type(e), e)
+            new_elements_comms = OrderedSet([element for element in new_elements_classes if re.search(comm_pattern, element.get_attribute("class"))])
+            new_elements_comms |= elements_comms
+            #more_comment_str = "коммент"
+            if len(elements_comms) == len(new_elements_comms):
+                Bad_counter+=1
+                #button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH,'//div[@class="more-comments-button__block-3z more-comments-button__text-1C"]')))
+                #print(button.text)
+                #driver.execute_script("arguments[0].style.transform='scale(1)';", driver.find_element(By.TAG_NAME,"body"))
+                #highlight(driver, button)
+                #driver.execute_script("arguments[0].click();", button)
+            #else:
+            #    Bad_counter = 0
+            elements_comms |= new_elements_comms
+        except:
+            Bad_counter+=1
+        if(Bad_counter>=3):
             break
+     
+    for el in elements_comms:
+        el_soup = BeautifulSoup(el.get_attribute('innerHTML'),'html.parser')
+        link_pattern = re.compile(r"Link Link_theme_normal Link_view_default comment-header__nameLink.*")
+        links = el_soup.find_all(class_= link_pattern)
+        if links is not None:  
+            for link in links:
+                user_url_part = link.get("href") 
+                
+                print(user_url_part)
     driver.quit()
 
-
 if __name__ == '__main__':
-    test_url = 'https://dzen.ru/video/watch/653433f74098ea1f27696a76?rid=2965756932.249.1697974558130.78267&amp;comment-request=1&amp;referrer_clid=1400&amp;#comments_data=p_root'
-    user_post_parser(test_url)
+    test_url = 'https://dzen.ru/b/ZTP3gQJ23RI2zQz-?referrer_clid=1400&'
+    post_comment_parser_test(test_url)
+    

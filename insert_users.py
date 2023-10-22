@@ -64,5 +64,5 @@ def user_parser(url):
 
 
 if __name__ == '__main__':
-    test_url = 'https://dzen.ru/tastyminute'
+    test_url = 'https://dzen.ru/id/652a7df17a8a8e15f847988f'
     user_parser(test_url)
