@@ -12,32 +12,7 @@ from bs4 import BeautifulSoup
 from insert_users import user_parser
 from sql_table import insert_comments
 
-def highlight(driver, element):
-    """Highlights (blinks) a Selenium Webdriver element"""
-
-    def apply_style(s):
-        driver.execute_script("arguments[0].setAttribute('style', arguments[1]);",
-                              element, s)
-
-    original_style = element.get_attribute('style')
-    apply_style("background: yellow; border: 2px solid red;")
-    time.sleep(.3)
-    apply_style(original_style)
-
-
-def is_element_exist_by_id(driver, id):
-    try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, id)))
-    except TimeoutException:
-        return False
-
-
-def is_element_exist_by(driver, by, id):
-    try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((by, id)))
-    except TimeoutException:
-        return False
-
+from utils import is_element_exist_by
 
 def post_comment_parser_test(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
@@ -90,7 +65,6 @@ def post_comment_parser_test(url):
             for link in links:
                 user_url_part = 'https://dzen.ru'+link.get("href")
                 user_parser(user_url_part)
-                print(user_url_part)
 
         content_pattern = re.compile(r"ui-lib-rich-text__text _color_primary.*")
         content_txt = el_soup.find_all(class_=content_pattern)
@@ -100,7 +74,6 @@ def post_comment_parser_test(url):
                 content=cont.get_text()
                 content=content.replace('<span class="ui-lib-rich-text__text _color_primary">','')
                 content = content.replace('</span>', '')
-                print(content)
 
         likes_pattern = re.compile(r"Text Text_typography_text-14-18 comment-footer__feedbackCount-2E.*")
         likes_txt = el_soup.find_all(class_=likes_pattern)
@@ -113,7 +86,6 @@ def post_comment_parser_test(url):
                 like_n = like_n.replace('</div>','')
                 if like_n=='':
                     like_n=0
-                print(int(like_n))
         insert_comments(url, user_url_part, content, int(like_n))
 
     driver.quit()

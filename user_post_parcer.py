@@ -1,39 +1,15 @@
+import time
+import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import re
-import time
+
 from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from sql_table import insert_post
 from user_comment_parcer import post_comment_parser_test
 
-def is_element_exist_by_id(driver, id):
-    try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, id)))
-    except TimeoutException:
-        return False
-
-
-def number_to_changesz(name):
-    name = name[:-7]
-    index = 0
-    likes = 0
-    if name[len(name) - 1].isdigit() or name[len(name) - 2].isdigit():
-        for i in reversed(range(0, len(name))):
-            if name[i].isdigit() and not (name[i - 1].isdigit()) and not (name[i - 2].isdigit()):
-                index = i
-                break
-        name = name[index:]
-        name = name.replace(',', '.')
-        if 'K' in name:
-            likes = float(name[:-1]) * 1000
-        elif 'M' in name:
-            likes = float(name[:-1]) * 1000000
-        else:
-            likes = int(name)
-    return likes
-
+from utils import number_to_changes, is_element_exist_by
 
 def user_post_parser_zher(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
@@ -60,10 +36,10 @@ def user_post_parser_zher(url):
                 comments = 0
                 # likes
                 name = element.find_element(By.CLASS_NAME, "zen-ui-button-like__content").get_attribute('innerHTML')
-                likes = number_to_changesz(name)
+                likes = number_to_changes(name)
                 # comments
                 name = element.find_element(By.CLASS_NAME, "zen-ui-button-footer__content").get_attribute('innerHTML')
-                comments = number_to_changesz(name)
+                comments = number_to_changes(name)
 
                 urls_post = urls[len(urls) - 1]
                 insert_post(url, int(likes), int(comments), urls_post[:-1])
@@ -75,11 +51,11 @@ def user_post_parser_zher(url):
             current_id_txt = 'zen-row-' + str(current_id)
 
             scroll_count = 0
-            while is_element_exist_by_id(driver, current_id_txt) == False and scroll_count < 3:
+            while is_element_exist_by(driver, By.ID, current_id_txt) is False and scroll_count < 3:
                 scroll_count += 1
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-            if is_element_exist_by_id(driver, current_id_txt) == False:
+            if is_element_exist_by(driver, By.ID, current_id_txt) is False:
                 print("Конец страницы")
                 break
         except Exception as e:

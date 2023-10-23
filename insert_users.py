@@ -8,18 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from sql_table import insert_user
 
-def is_element_exist_by_id(driver, id):
-    try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, id)))
-    except TimeoutException:
-        return False
-
-def is_element_exist_by(driver,by, id):
-    try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((by, id)))
-    except TimeoutException:
-        return False
-
+from utils import is_element_exist_by
 
 def user_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
@@ -45,8 +34,8 @@ def user_parser(url):
             if i>2: description=description+words[i]+'\n'
 
         #достаю аву
-        while is_element_exist_by(driver,By.CLASS_NAME,"desktop-channel-layout__avatar") == False:
-            print(1)
+        while is_element_exist_by(driver,By.CLASS_NAME,"desktop-channel-layout__avatar") is False:
+            pass
         photo = driver.find_element(By.CLASS_NAME, "desktop-channel-layout__avatar")
 
         # достаю ссылку
