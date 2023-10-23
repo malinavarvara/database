@@ -80,13 +80,22 @@ def post_comment_parser_test(url):
 
     for el in elements_comms:
         el_soup = BeautifulSoup(el.get_attribute('innerHTML'), 'html.parser')
+
         link_pattern = re.compile(r"Link Link_theme_normal Link_view_default comment-header__nameLink.*")
         links = el_soup.find_all(class_=link_pattern)
         if links is not None:
             for link in links:
-                user_url_part = link.get("href")
-
+                user_url_part = 'https://dzen.ru'+link.get("href")
                 print(user_url_part)
+
+        content_pattern = re.compile(r"ui-lib-rich-text__text _color_primary.*")
+        content_txt = el_soup.find_all(class_=content_pattern)
+        if content_txt is not None:
+            for cont in content_txt:
+                content=cont.get_text()
+                content=content.replace('<span class="ui-lib-rich-text__text _color_primary">','')
+                content = content.replace('</span>', '')
+                print(content)
     driver.quit()
 
 
