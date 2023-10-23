@@ -96,6 +96,15 @@ def post_comment_parser_test(url):
                 content=content.replace('<span class="ui-lib-rich-text__text _color_primary">','')
                 content = content.replace('</span>', '')
                 print(content)
+
+        content_pattern = re.compile(r"ui-lib-rich-text__text _color_primary.*")
+        content_txt = el_soup.find_all(class_=content_pattern)
+        if content_txt is not None:
+            for cont in content_txt:
+                content = cont.get_text()
+                content = content.replace('<span class="ui-lib-rich-text__text _color_primary">', '')
+                content = content.replace('</span>', '')
+                print(content)
     driver.quit()
 
 
