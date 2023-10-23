@@ -63,12 +63,13 @@ def insert_post(user_url, n_likes, n_comments, url_post):
     ,?,?,?);""", (user_url, n_likes, n_comments, url_post))
     db.commit()
 
-def insert_comments(post_id, user_create_id, content, n_likes):
+def insert_comments(url_post, url_create, content, n_likes):
     cursor.execute("""INSERT INTO 
-    posts (post_id, user_create_id, content, n_likes) 
+    comments (post_id, user_create_id, content, n_likes) 
     VALUES (
-    (SELECT user.user_id FROM user WHERE user.user_url = ?)
-    ,?,?);""", (post_id, user_create_id, content, n_likes))
+    (SELECT posts.id FROM posts WHERE posts.url_post = ?),
+    (SELECT user.user_id FROM user WHERE user.user_url = ?),
+    ?,?);""", (url_post, url_create, content, n_likes))
     db.commit()
 
 def delete_repeat():

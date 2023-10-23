@@ -9,6 +9,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from ordered_set import OrderedSet
 from bs4 import BeautifulSoup
 
+from insert_users import user_parser
+from sql_table import insert_comments
 
 def highlight(driver, element):
     """Highlights (blinks) a Selenium Webdriver element"""
@@ -83,13 +85,16 @@ def post_comment_parser_test(url):
 
         link_pattern = re.compile(r"Link Link_theme_normal Link_view_default comment-header__nameLink.*")
         links = el_soup.find_all(class_=link_pattern)
+        user_url_part=''
         if links is not None:
             for link in links:
                 user_url_part = 'https://dzen.ru'+link.get("href")
+                user_parser(user_url_part)
                 print(user_url_part)
 
         content_pattern = re.compile(r"ui-lib-rich-text__text _color_primary.*")
         content_txt = el_soup.find_all(class_=content_pattern)
+        content=''
         if content_txt is not None:
             for cont in content_txt:
                 content=cont.get_text()
@@ -97,17 +102,24 @@ def post_comment_parser_test(url):
                 content = content.replace('</span>', '')
                 print(content)
 
-        content_pattern = re.compile(r"ui-lib-rich-text__text _color_primary.*")
-        content_txt = el_soup.find_all(class_=content_pattern)
-        if content_txt is not None:
-            for cont in content_txt:
-                content = cont.get_text()
-                content = content.replace('<span class="ui-lib-rich-text__text _color_primary">', '')
-                content = content.replace('</span>', '')
-                print(content)
+        likes_pattern = re.compile(r"Text Text_typography_text-14-18 comment-footer__feedbackCount-2E.*")
+        likes_txt = el_soup.find_all(class_=likes_pattern)
+        like_n=''
+        if likes_txt is not None:
+            for likes in likes_txt:
+                like_n=likes.get_text()
+                like_n=like_n.replace('<div class="Text Text_typography_text-14-18 comment-footer__feedbackCount-2E" title="Количество лайков">','')
+                like_n = like_n.replace('<div class="Text Text_typography_text-14-18 comment-footer__feedbackCount-2E comment-footer__empty-3u" title="Количество лайков">','')
+                like_n = like_n.replace('</div>','')
+                if like_n=='':
+                    like_n=0
+                print(int(like_n))
+        insert_comments(url, user_url_part, content, int(like_n))
+
     driver.quit()
 
 
 if __name__ == '__main__':
-    test_url = 'https://dzen.ru/b/ZTP3gQJ23RI2zQz-?referrer_clid=1400&'
+    test_url = 'https://dzen.ru/b/ZTP3gQJ23RI2zQz-?from=channel&amp'
+
     post_comment_parser_test(test_url)

@@ -6,7 +6,7 @@ from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from sql_table import insert_post
-
+from user_comment_parcer import post_comment_parser_test
 
 def is_element_exist_by_id(driver, id):
     try:
@@ -64,16 +64,11 @@ def user_post_parser_zher(url):
                 # comments
                 name = element.find_element(By.CLASS_NAME, "zen-ui-button-footer__content").get_attribute('innerHTML')
                 comments = number_to_changesz(name)
-                if comments > 0:
-                    comments_url = element.find_element(By.CLASS_NAME,
-                                                        "card-layer-channel-footer-view__social-meta").get_attribute(
-                        'innerHTML')
-                    url_pattern_com = r'https://[\S]+'
-                    urls_com = re.findall(url_pattern_com, comments_url)
-                    print(urls_com)
 
                 urls_post = urls[len(urls) - 1]
                 insert_post(url, int(likes), int(comments), urls_post[:-1])
+                if comments > 0:
+                    post_comment_parser_test(urls_post[:-1])
 
             # Перейдите к следующему id
             current_id = current_id + 1
