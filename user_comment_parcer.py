@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from insert_users import user_parser
 from sql_table import insert_comments
 
-from utils import is_element_exist_by
+from utils import number_to_changes
 
 def post_comment_parser_test(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
@@ -63,7 +63,7 @@ def post_comment_parser_test(url):
         user_url_part=''
         if links is not None:
             for link in links:
-                user_url_part = 'https://dzen.ru'+link.get("href")
+                user_url_part = f'https://dzen.ru{link.get("href")}'
                 user_parser(user_url_part)
 
         content_pattern = re.compile(r"ui-lib-rich-text__text _color_primary.*")
@@ -84,9 +84,7 @@ def post_comment_parser_test(url):
                 like_n=like_n.replace('<div class="Text Text_typography_text-14-18 comment-footer__feedbackCount-2E" title="Количество лайков">','')
                 like_n = like_n.replace('<div class="Text Text_typography_text-14-18 comment-footer__feedbackCount-2E comment-footer__empty-3u" title="Количество лайков">','')
                 like_n = like_n.replace('</div>','')
-                if like_n=='':
-                    like_n=0
-        insert_comments(url, user_url_part, content, int(like_n))
+        insert_comments(url, user_url_part, content, number_to_changes(like_n))
 
     driver.quit()
 

@@ -6,10 +6,15 @@ from selenium.webdriver.common.by import By
 from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
+#from selenium.common.exceptions import StaleElementReferenceException
+
 from sql_table import insert_post
 from user_comment_parcer import post_comment_parser_test
 
 from utils import number_to_changes, is_element_exist_by
+
+import sys, traceback
 
 def user_post_parser_zher(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
@@ -23,7 +28,7 @@ def user_post_parser_zher(url):
     current_id = 0
     current_id_txt = 'zen-row-' + str(current_id)
 
-    while current_id != 6:
+    while current_id != 20:
         try:
             # Поиск элемента с текущим id
             element = driver.find_element(By.ID, current_id_txt)
@@ -34,15 +39,17 @@ def user_post_parser_zher(url):
             if len(urls) != 0:
                 likes = 0
                 comments = 0
+                NUMERIC_PATTERN = re.compile(r'.*[кнопке\"|/svg]>(.*)</span>')
                 # likes
-                name = element.find_element(By.CLASS_NAME, "zen-ui-button-like__content").get_attribute('innerHTML')
-                likes = number_to_changes(name)
+                likes_str = element.find_element(By.CLASS_NAME, "zen-ui-button-like__content").get_attribute('innerHTML')
+                likes_str = re.sub(NUMERIC_PATTERN,r'\1',likes_str)
+                likes = number_to_changes(likes_str)
                 # comments
-                name = element.find_element(By.CLASS_NAME, "zen-ui-button-footer__content").get_attribute('innerHTML')
-                comments = number_to_changes(name)
-
+                comments_str = element.find_element(By.CLASS_NAME, "zen-ui-button-footer__content").get_attribute('innerHTML')
+                comments_str = re.sub(NUMERIC_PATTERN,r'\1',comments_str)
+                comments = number_to_changes(comments_str)
                 urls_post = urls[len(urls) - 1]
-                insert_post(url, int(likes), int(comments), urls_post[:-1])
+                insert_post(url, likes, comments, urls_post[:-1])
                 if comments > 0:
                     post_comment_parser_test(urls_post[:-1])
 
@@ -58,14 +65,19 @@ def user_post_parser_zher(url):
             if is_element_exist_by(driver, By.ID, current_id_txt) is False:
                 print("Конец страницы")
                 break
-        except Exception as e:
+        #except StaleElementReferenceException:
+        #    break
+        except Exception:
             # Если элемент не был найден, завершите цикл
-            print("Элемент не найден. Завершение.")
-            print(type(e), e)
+            exc = sys.exception()
+            print("*** print_exception:")
+            traceback.print_exception(exc, limit=2, file=sys.stdout)
+            print("*** print_exc:")
+            traceback.print_exc(limit=2, file=sys.stdout)
             break
     driver.quit()
 
 
 if __name__ == '__main__':
-    test_url = 'https://dzen.ru/id/652a7df17a8a8e15f847988f'
+    test_url = 'https://dzen.ru/id/622efc792366414af12ed1f3'
     user_post_parser_zher(test_url)

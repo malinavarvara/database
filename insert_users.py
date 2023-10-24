@@ -8,7 +8,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from sql_table import insert_user
 
-from utils import is_element_exist_by
+from utils import is_element_exist_by, number_to_changes
+
+import sys, traceback
 
 def user_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
@@ -23,15 +25,9 @@ def user_parser(url):
         name = driver.find_element(By.CLASS_NAME, "desktop-channel-layout__header-wrapper").text.strip()
         words=name.split('\n')
         user_name=words[0]
-        n_followers=words[1]
-        n_followers=n_followers.replace(',', '.')
-        n=0
-        if 'K' in n_followers: n= float(n_followers[:-1])*1000
-        elif 'M' in n_followers: n= float(n_followers[:-1]) * 1000000
-        else: n=n_followers
-        description=''
-        for i in range(len(words)-2):
-            if i>2: description=description+words[i]+'\n'
+        n_followers_str=words[1]
+        n_followers = number_to_changes(n_followers_str)
+        description='\n'.join(words[3:-2])
 
         #достаю аву
         while is_element_exist_by(driver,By.CLASS_NAME,"desktop-channel-layout__avatar") is False:
@@ -42,16 +38,24 @@ def user_parser(url):
         text = photo.get_attribute('innerHTML')
         url_pattern = r'https://[\S]+'
         urls = re.findall(url_pattern, text)
-        image=urls[0]
-        insert_user(user_name, url, image[:-9], description, n)
-        return [user_name,url,image[:-9],description,n]
+        if len(urls)>0:
+            image = urls[0]
+            image = image[:-9]
+        else:
+            image = 'Нет аватарки' 
+            
+        insert_user(user_name, url, image, description, n_followers)
+        return [user_name,url,image,description,n_followers]
 
-    except Exception as e:
-        print("Элемент не найден. Завершение.")
-        print(type(e), e)
+    except Exception:
+        exc = sys.exception()
+        print("*** print_exception:")
+        traceback.print_exception(exc, limit=2, file=sys.stdout)
+        print("*** print_exc:")
+        traceback.print_exc(limit=2, file=sys.stdout)
     driver.quit()
 
 
 if __name__ == '__main__':
-    test_url = 'https://dzen.ru/id/652a7df17a8a8e15f847988f'
+    test_url = 'https://dzen.ru/user/8c9dcm93t0v8hatujpv4w0rj1r'
     user_parser(test_url)

@@ -11,6 +11,8 @@ from sql_table import delete_repeat
 
 from utils import is_element_exist_by, links_to_changes
 
+import sys, traceback
+
 def main_page_users_parcing():
     DZEN_MAIN_PAGE_URL = 'https://dzen.ru/articles'
     # Создание дравера с опциями (чтобы не спамил ошибками)
@@ -24,7 +26,7 @@ def main_page_users_parcing():
     current_id = 0
     current_id_txt='zen-row-'+str(current_id)
 
-    while current_id!=5:
+    while current_id!=10:
         try:
             # Поиск элемента с текущим id
             element = driver.find_element(By.ID, current_id_txt)
@@ -48,10 +50,13 @@ def main_page_users_parcing():
             if is_element_exist_by(driver,By.ID, current_id_txt) is False:
                 print("Конец страницы")
                 break
-        except Exception as e:
+        except Exception:
             # Если элемент не был найден, завершите цикл
-            print("Элемент не найден. Завершение.")
-            print(type(e), e)
+            exc = sys.exception()
+            print("*** print_exception:")
+            traceback.print_exception(exc, limit=2, file=sys.stdout)
+            print("*** print_exc:")
+            traceback.print_exc(limit=2, file=sys.stdout)
             break
     driver.quit()
 

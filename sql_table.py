@@ -87,3 +87,6 @@ def delete_repeat():
         FROM user 
         GROUP BY user_url)""")
         db.commit()
+        
+if __name__ == '__main__':
+    DZEN_db_create()
