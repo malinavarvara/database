@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from ordered_set import OrderedSet
 from bs4 import BeautifulSoup
 
-from insert_users import user_parser
+from user_parser import user_parser
 from sql_table import insert_comments
 
 from utils import number_to_changes

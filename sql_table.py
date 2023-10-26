@@ -9,7 +9,8 @@ def DZEN_db_create():
             user_url varchar,
             user_image varchar,
             description varchar,
-            n_followers integer not null default 0
+            n_followers integer not null default 0,
+            flag_is_parsed bool not null default False
         );
         CREATE TABLE IF NOT EXISTS links (
             id integer PRIMARY KEY,
@@ -50,12 +51,12 @@ def DZEN_db_create():
         INSERT INTO post_type (name) VALUES ('Видео');
         """)
 
-def insert_user(username, user_url, user_image, description, n_followers):
+def insert_user(username, user_url, user_image, description, n_followers, flag):
     with sqlite3.connect("database.db") as db:
         cursor = db.cursor()
         cursor.execute("""INSERT INTO 
-        user (username, user_url, user_image, description, n_followers) 
-        VALUES (?,?,?,?,?);""", (username, user_url, user_image, description, n_followers))
+        user (username, user_url, user_image, description, n_followers, flag_is_parsed) 
+        VALUES (?,?,?,?,?,?);""", (username, user_url, user_image, description, n_followers, flag))
         db.commit()
 
 def insert_post(user_url, n_likes, n_comments, url_post, type_txt):

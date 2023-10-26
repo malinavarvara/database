@@ -22,6 +22,9 @@ def user_parser(url):
     driver.get(url)
 
     try:
+        flag=0
+        if is_element_exist_by(driver, By.ID, 'zen-row-0') is False:
+            flag=1
         name = driver.find_element(By.CLASS_NAME, "desktop-channel-layout__header-wrapper").text.strip()
         words=name.split('\n')
         user_name=words[0]
@@ -44,7 +47,7 @@ def user_parser(url):
         else:
             image = 'Нет аватарки' 
             
-        insert_user(user_name, url, image, description, n_followers)
+        insert_user(user_name, url, image, description, n_followers, flag)
         return [user_name,url,image,description,n_followers]
 
     except Exception:
@@ -57,5 +60,5 @@ def user_parser(url):
 
 
 if __name__ == '__main__':
-    test_url = 'https://dzen.ru/user/8c9dcm93t0v8hatujpv4w0rj1r'
+    test_url = 'https://dzen.ru/user/2yxca3afqa10w6k1hhk7n543a4'
     user_parser(test_url)

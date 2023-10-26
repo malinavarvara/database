@@ -57,8 +57,6 @@ def user_post_parser(url):
                 comments = number_to_changes(comments_str)
                 urls_post = urls[len(urls) - 1]
                 insert_post(url, likes, comments, urls_post[:-1], type_txt)
-                if comments > 0:
-                    post_comment_parser_test(urls_post[:-1])
 
             # Перейдите к следующему id
             current_id = current_id + 1
