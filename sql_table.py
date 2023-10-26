@@ -68,6 +68,14 @@ def insert_user(username, user_url, user_image, description, n_followers, flag):
         VALUES (?,?,?,?,?,?);""", (username, user_url, user_image, description, n_followers, flag))
         db.commit()
 
+def output_users():
+    users=[]
+    with sqlite3.connect("database.db") as db:
+        cursor = db.cursor()
+        users=cursor.execute("""SELECT user_id, username, description, n_followers FROM user""")
+        db.commit()
+    return users
+
 def insert_post(user_url, n_likes, n_comments, url_post, type_txt):
     with sqlite3.connect("database.db") as db:
         cursor = db.cursor()
