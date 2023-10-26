@@ -1,16 +1,12 @@
 import re
-import time
-
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 
 from selenium.common import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-def is_element_exist_by(driver, by, id):
+def is_element_exist_by(driver, by, pattern):
     try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((by, id)))
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((by, pattern)))
     except TimeoutException:
         return False
 

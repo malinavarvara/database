@@ -1,13 +1,13 @@
+import sys
+import traceback
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 from user_parser import user_parser
-from sql_table import delete_repeat
-
+from user_post_parcer import user_post_parser
 from utils import is_element_exist_by, links_to_changes
-
-import sys, traceback
 
 def main_page_users_parcing():
     DZEN_MAIN_PAGE_URL = 'https://dzen.ru/articles'
@@ -29,16 +29,14 @@ def main_page_users_parcing():
                     pass
                 user_text = links_to_changes(element.find_element(By.CLASS_NAME, "zen-ui-channel-info__title-and-veryfied-mark-wrapper"))
                 user_parser(user_text)
-
+                user_post_parser(user_text)
             # Перейдите к следующему id
             current_id += 1
             current_id_txt = f'zen-row-{current_id}'
-
             scroll_count = 0
             while is_element_exist_by(driver,By.ID, current_id_txt) is False and scroll_count < 3:
                 scroll_count += 1
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
             if is_element_exist_by(driver,By.ID, current_id_txt) is False:
                 print("Конец страницы")
                 break
@@ -52,7 +50,6 @@ def main_page_users_parcing():
             traceback.print_exc(limit=2, file=sys.stdout)
             break
     driver.quit()
-
+    
 if __name__ == '__main__':
     main_page_users_parcing()
-    delete_repeat()

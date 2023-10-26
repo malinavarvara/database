@@ -9,11 +9,11 @@ from ordered_set import OrderedSet
 from bs4 import BeautifulSoup
 
 from user_parser import user_parser
-from sql_table import insert_comments
+from sql_table import insert_comment
 
 from utils import number_to_changes
 
-def post_comment_parser_test(url):
+def post_comment_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -77,9 +77,9 @@ def post_comment_parser_test(url):
                 like_n=like_n.replace('<div class="Text Text_typography_text-14-18 comment-footer__feedbackCount-2E" title="Количество лайков">','')
                 like_n = like_n.replace('<div class="Text Text_typography_text-14-18 comment-footer__feedbackCount-2E comment-footer__empty-3u" title="Количество лайков">','')
                 like_n = like_n.replace('</div>','')
-        insert_comments(url, user_url_part, content, number_to_changes(like_n))
+        insert_comment(url, user_url_part, content, number_to_changes(like_n))
     driver.quit()
 
 if __name__ == '__main__':
     test_url = 'https://dzen.ru/b/ZTP3gQJ23RI2zQz-?from=channel&amp'
-    post_comment_parser_test(test_url)
+    post_comment_parser(test_url)

@@ -1,4 +1,5 @@
 import sqlite3
+
 def DZEN_db_create():
     with sqlite3.connect("database.db") as db:
         cursor = db.cursor()
@@ -71,7 +72,7 @@ def insert_post(user_url, n_likes, n_comments, url_post, type_txt):
                        (user_url, n_likes, n_comments, url_post, type_txt))
         db.commit()
 
-def insert_comments(url_post, url_create, content, n_likes):
+def insert_comment(url_post, url_create, content, n_likes):
     with sqlite3.connect("database.db") as db:
         cursor = db.cursor()
         cursor.execute("""INSERT INTO 
@@ -90,6 +91,11 @@ def delete_repeat():
         SELECT MIN(user_id) 
         FROM user 
         GROUP BY user_url)""")
+        cursor.execute("""DELETE FROM posts 
+        where id NOT IN (
+        SELECT MIN(id) 
+        FROM posts 
+        GROUP BY url_post)""")
         db.commit()
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@ from selenium.common.exceptions import NoSuchElementException
 
 from sql_table import insert_post
 from utils import number_to_changes, is_element_exist_by
+from post_comment_parcer import post_comment_parser
 
 def user_post_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
@@ -18,7 +19,6 @@ def user_post_parser(url):
     # Здесь можно заменить на int и просто приписывать "zen-row-"
     current_id = 0
     current_id_txt = f'zen-row-{current_id}'
-
     while current_id != 20:
         try:
             # Поиск элемента с текущим id
@@ -48,18 +48,17 @@ def user_post_parser(url):
                 comments = number_to_changes(comments_str)
                 urls_post = urls[len(urls) - 1]
                 insert_post(url, likes, comments, urls_post[:-1], type_txt)
-
+                if(comments>0):
+                    post_comment_parser(urls_post[:-1])
             # Перейдите к следующему id
             current_id = current_id + 1
             current_id_txt = 'zen-row-' + str(current_id)
-
             scroll_count = 0
             while is_element_exist_by(driver, By.ID, current_id_txt) is False and scroll_count < 3:
                 scroll_count += 1
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
             if is_element_exist_by(driver, By.ID, current_id_txt) is False:
-                print("Конец страницы")
+                #print("Конец страницы")
                 break
         except NoSuchElementException:
             break

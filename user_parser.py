@@ -5,7 +5,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 from sql_table import insert_user
-
 from utils import is_element_exist_by, number_to_changes
 
 def user_parser(url):
@@ -13,10 +12,8 @@ def user_parser(url):
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(options=options)
-
     # Открываем веб-сайт
     driver.get(url)
-
     try:
         flag=0
         if is_element_exist_by(driver, By.ID, 'zen-row-0') is False:
@@ -27,12 +24,10 @@ def user_parser(url):
         n_followers_str=words[1]
         n_followers = number_to_changes(n_followers_str)
         description='\n'.join(words[3:-2])
-
         #достаю аву
         while is_element_exist_by(driver,By.CLASS_NAME,"desktop-channel-layout__avatar") is False:
             pass
         photo = driver.find_element(By.CLASS_NAME, "desktop-channel-layout__avatar")
-
         # достаю ссылку
         text = photo.get_attribute('innerHTML')
         url_pattern = r'https://[\S]+'
