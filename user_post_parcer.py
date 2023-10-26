@@ -16,7 +16,7 @@ from utils import number_to_changes, is_element_exist_by
 
 import sys, traceback
 
-def user_post_parser_zher(url):
+def user_post_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -34,6 +34,13 @@ def user_post_parser_zher(url):
             element = driver.find_element(By.ID, current_id_txt)
             # ссылка
             text = element.get_attribute('innerHTML')
+            type_txt=''
+            if 'card-brief _platform_desktop' in text:
+                type_txt='Пост'
+            elif 'Карточка статьи' in text:
+                type_txt = 'Статья'
+            elif 'Карточка видео' in text:
+                type_txt = 'Видео'
             url_pattern = r'https://[\S]+'
             urls = re.findall(url_pattern, text)
             if len(urls) != 0:
@@ -49,7 +56,7 @@ def user_post_parser_zher(url):
                 comments_str = re.sub(NUMERIC_PATTERN,r'\1',comments_str)
                 comments = number_to_changes(comments_str)
                 urls_post = urls[len(urls) - 1]
-                insert_post(url, likes, comments, urls_post[:-1])
+                insert_post(url, likes, comments, urls_post[:-1], type_txt)
                 if comments > 0:
                     post_comment_parser_test(urls_post[:-1])
 
@@ -80,4 +87,4 @@ def user_post_parser_zher(url):
 
 if __name__ == '__main__':
     test_url = 'https://dzen.ru/id/622efc792366414af12ed1f3'
-    user_post_parser_zher(test_url)
+    user_post_parser(test_url)

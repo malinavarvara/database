@@ -29,7 +29,9 @@ def DZEN_db_create():
             n_likes INTEGER not null default 0,
             n_comments INTEGER not null default 0,
             url_post varchar,
-            FOREIGN KEY (user_id) REFERENCES user (user_id)
+            type_id integer,
+            FOREIGN KEY (user_id) REFERENCES user (user_id),
+            FOREIGN KEY (type_id) REFERENCES post_type (type_id)
         );
         CREATE TABLE IF NOT EXISTS  comments (
             id integer PRIMARY KEY AUTOINCREMENT,
@@ -41,12 +43,11 @@ def DZEN_db_create():
         );
         CREATE TABLE IF NOT EXISTS post_type (
             type_id integer PRIMARY KEY AUTOINCREMENT,
-            name VARCHAR(20)
+            name VARCHAR
         );
-        CREATE TABLE IF NOT EXISTS media_type (
-            type_id integer PRIMARY KEY AUTOINCREMENT,
-            name VARCHAR(20)
-        );
+        INSERT INTO post_type (name) VALUES ('Статья');
+        INSERT INTO post_type (name) VALUES ('Пост');
+        INSERT INTO post_type (name) VALUES ('Видео');
         """)
 
 def insert_user(username, user_url, user_image, description, n_followers):
@@ -57,14 +58,16 @@ def insert_user(username, user_url, user_image, description, n_followers):
         VALUES (?,?,?,?,?);""", (username, user_url, user_image, description, n_followers))
         db.commit()
 
-def insert_post(user_url, n_likes, n_comments, url_post):
+def insert_post(user_url, n_likes, n_comments, url_post, type_txt):
     with sqlite3.connect("database.db") as db:
         cursor = db.cursor()
         cursor.execute("""INSERT INTO 
-        posts (user_id, n_likes, n_comments, url_post) 
+        posts (user_id, n_likes, n_comments, url_post, type_id) 
         VALUES (
         (SELECT user.user_id FROM user WHERE user.user_url = ?)
-        ,?,?,?);""", (user_url, n_likes, n_comments, url_post))
+        ,?,?,?,
+        (SELECT post_type.type_id FROM post_type WHERE post_type.name = ?));""",
+                       (user_url, n_likes, n_comments, url_post, type_txt))
         db.commit()
 
 def insert_comments(url_post, url_create, content, n_likes):
@@ -87,6 +90,6 @@ def delete_repeat():
         FROM user 
         GROUP BY user_url)""")
         db.commit()
-        
+
 if __name__ == '__main__':
     DZEN_db_create()
