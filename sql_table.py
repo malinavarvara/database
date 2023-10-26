@@ -52,6 +52,14 @@ def DZEN_db_create():
         INSERT INTO post_type (name) VALUES ('Видео');
         """)
 
+def output_users():
+    users=[]
+    with sqlite3.connect("database.db") as db:
+        cursor = db.cursor()
+        users=cursor.execute("""SELECT user_id, username, description, n_followers FROM user""")
+        db.commit()
+    return users
+
 def insert_user(username, user_url, user_image, description, n_followers, flag):
     with sqlite3.connect("database.db") as db:
         cursor = db.cursor()
