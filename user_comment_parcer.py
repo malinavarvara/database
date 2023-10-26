@@ -1,10 +1,9 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 import re
 import time
-from selenium.common import TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
 from ordered_set import OrderedSet
 from bs4 import BeautifulSoup
@@ -30,7 +29,7 @@ def post_comment_parser_test(url):
     elements_comms = OrderedSet(
         [element for element in elements_classes if re.search(comm_pattern, element.get_attribute("class"))])
 
-    Bad_counter = 0
+    bad_counter = 0
     while True:
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
@@ -39,20 +38,14 @@ def post_comment_parser_test(url):
             new_elements_comms = OrderedSet([element for element in new_elements_classes if
                                              re.search(comm_pattern, element.get_attribute("class"))])
             new_elements_comms |= elements_comms
-            # more_comment_str = "коммент"
             if len(elements_comms) == len(new_elements_comms):
-                Bad_counter += 1
-                # button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH,'//div[@class="more-comments-button__block-3z more-comments-button__text-1C"]')))
-                # print(button.text)
-                # driver.execute_script("arguments[0].style.transform='scale(1)';", driver.find_element(By.TAG_NAME,"body"))
-                # highlight(driver, button)
-                # driver.execute_script("arguments[0].click();", button)
-            # else:
-            #    Bad_counter = 0
+                bad_counter += 1
             elements_comms |= new_elements_comms
+        except NoSuchElementException:
+            break            
         except:
-            Bad_counter += 1
-        if (Bad_counter >= 3):
+            bad_counter += 1
+        if (bad_counter >= 3):
             break
 
     for el in elements_comms:
@@ -85,11 +78,8 @@ def post_comment_parser_test(url):
                 like_n = like_n.replace('<div class="Text Text_typography_text-14-18 comment-footer__feedbackCount-2E comment-footer__empty-3u" title="Количество лайков">','')
                 like_n = like_n.replace('</div>','')
         insert_comments(url, user_url_part, content, number_to_changes(like_n))
-
     driver.quit()
-
 
 if __name__ == '__main__':
     test_url = 'https://dzen.ru/b/ZTP3gQJ23RI2zQz-?from=channel&amp'
-
     post_comment_parser_test(test_url)

@@ -1,12 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import re
-import time
-from selenium.common import TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException
+
 from user_parser import user_parser
-from user_post_parcer import user_post_parser
 from sql_table import delete_repeat
 
 from utils import is_element_exist_by, links_to_changes
@@ -19,13 +15,10 @@ def main_page_users_parcing():
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(options=options)
-
     # Открываем веб-сайт
     driver.get(DZEN_MAIN_PAGE_URL)
-
     current_id = 0
-    current_id_txt='zen-row-'+str(current_id)
-
+    current_id_txt=f'zen-row-{current_id}'
     while current_id!=10:
         try:
             # Поиск элемента с текущим id
@@ -38,8 +31,8 @@ def main_page_users_parcing():
                 user_parser(user_text)
 
             # Перейдите к следующему id
-            current_id = current_id+1
-            current_id_txt = 'zen-row-' + str(current_id)
+            current_id += 1
+            current_id_txt = f'zen-row-{current_id}'
 
             scroll_count = 0
             while is_element_exist_by(driver,By.ID, current_id_txt) is False and scroll_count < 3:
@@ -49,8 +42,9 @@ def main_page_users_parcing():
             if is_element_exist_by(driver,By.ID, current_id_txt) is False:
                 print("Конец страницы")
                 break
+        except NoSuchElementException:
+            break
         except Exception:
-            # Если элемент не был найден, завершите цикл
             exc = sys.exception()
             print("*** print_exception:")
             traceback.print_exception(exc, limit=2, file=sys.stdout)
@@ -58,7 +52,6 @@ def main_page_users_parcing():
             traceback.print_exc(limit=2, file=sys.stdout)
             break
     driver.quit()
-
 
 if __name__ == '__main__':
     main_page_users_parcing()

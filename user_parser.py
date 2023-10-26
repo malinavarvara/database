@@ -1,16 +1,12 @@
+import sys, traceback
+import re
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import re
-import time
-from selenium.common import TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 from sql_table import insert_user
 
 from utils import is_element_exist_by, number_to_changes
-
-import sys, traceback
 
 def user_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
@@ -46,10 +42,7 @@ def user_parser(url):
             image = image[:-9]
         else:
             image = 'Нет аватарки' 
-            
         insert_user(user_name, url, image, description, n_followers, flag)
-        return [user_name,url,image,description,n_followers]
-
     except Exception:
         exc = sys.exception()
         print("*** print_exception:")
@@ -57,7 +50,6 @@ def user_parser(url):
         print("*** print_exc:")
         traceback.print_exc(limit=2, file=sys.stdout)
     driver.quit()
-
 
 if __name__ == '__main__':
     test_url = 'https://dzen.ru/user/2yxca3afqa10w6k1hhk7n543a4'

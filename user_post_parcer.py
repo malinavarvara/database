@@ -1,32 +1,23 @@
-import time
+import sys, traceback
+
 import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-
-from selenium.common import TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-
-#from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException
 
 from sql_table import insert_post
-from user_comment_parcer import post_comment_parser_test
-
 from utils import number_to_changes, is_element_exist_by
-
-import sys, traceback
 
 def user_post_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(options=options)
-
     # Открываем веб-сайт
     driver.get(url)
     # Здесь можно заменить на int и просто приписывать "zen-row-"
     current_id = 0
-    current_id_txt = 'zen-row-' + str(current_id)
+    current_id_txt = f'zen-row-{current_id}'
 
     while current_id != 20:
         try:
@@ -70,10 +61,9 @@ def user_post_parser(url):
             if is_element_exist_by(driver, By.ID, current_id_txt) is False:
                 print("Конец страницы")
                 break
-        #except StaleElementReferenceException:
-        #    break
+        except NoSuchElementException:
+            break
         except Exception:
-            # Если элемент не был найден, завершите цикл
             exc = sys.exception()
             print("*** print_exception:")
             traceback.print_exception(exc, limit=2, file=sys.stdout)
@@ -81,7 +71,6 @@ def user_post_parser(url):
             traceback.print_exc(limit=2, file=sys.stdout)
             break
     driver.quit()
-
 
 if __name__ == '__main__':
     test_url = 'https://dzen.ru/id/622efc792366414af12ed1f3'
