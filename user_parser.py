@@ -1,26 +1,19 @@
+import sys, traceback
+import re
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import re
-import time
-from selenium.common import TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 from sql_table import insert_user
-
 from utils import is_element_exist_by, number_to_changes
-
-import sys, traceback
 
 def user_parser(url):
     # Создание дравера с опциями (чтобы не спамил ошибками)
     options = webdriver.ChromeOptions()
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(options=options)
-
     # Открываем веб-сайт
     driver.get(url)
-
     try:
         flag=0
         if is_element_exist_by(driver, By.ID, 'zen-row-0') is False:
@@ -31,12 +24,10 @@ def user_parser(url):
         n_followers_str=words[1]
         n_followers = number_to_changes(n_followers_str)
         description='\n'.join(words[3:-2])
-
         #достаю аву
         while is_element_exist_by(driver,By.CLASS_NAME,"desktop-channel-layout__avatar") is False:
             pass
         photo = driver.find_element(By.CLASS_NAME, "desktop-channel-layout__avatar")
-
         # достаю ссылку
         text = photo.get_attribute('innerHTML')
         url_pattern = r'https://[\S]+'
@@ -46,10 +37,7 @@ def user_parser(url):
             image = image[:-9]
         else:
             image = 'Нет аватарки' 
-            
         insert_user(user_name, url, image, description, n_followers, flag)
-        return [user_name,url,image,description,n_followers]
-
     except Exception:
         exc = sys.exception()
         print("*** print_exception:")
@@ -57,7 +45,6 @@ def user_parser(url):
         print("*** print_exc:")
         traceback.print_exc(limit=2, file=sys.stdout)
     driver.quit()
-
 
 if __name__ == '__main__':
     test_url = 'https://dzen.ru/chipsjournal4325'
